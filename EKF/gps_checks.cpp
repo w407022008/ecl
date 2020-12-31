@@ -121,17 +121,17 @@ bool Ekf::gps_is_good(const gps_message &gps)
 	_gps_check_fail_status.flags.fix = (gps.fix_type < 3);
 
 	// Check the number of satellites
-	_gps_check_fail_status.flags.nsats = (gps.nsats < _params.req_nsats);
+    _gps_check_fail_status.flags.nsats = (gps.nsats < _params.req_nsats); // by default:6
 
 	// Check the position dilution of precision
-	_gps_check_fail_status.flags.pdop = (gps.pdop > _params.req_pdop);
+    _gps_check_fail_status.flags.pdop = (gps.pdop > _params.req_pdop); // by default:2.5 but not used in EKF2_GPS_CHECK
 
 	// Check the reported horizontal and vertical position accuracy
-	_gps_check_fail_status.flags.hacc = (gps.eph > _params.req_hacc);
-	_gps_check_fail_status.flags.vacc = (gps.epv > _params.req_vacc);
+    _gps_check_fail_status.flags.hacc = (gps.eph > _params.req_hacc); // by default:3.0
+    _gps_check_fail_status.flags.vacc = (gps.epv > _params.req_vacc); // by default:5.0
 
 	// Check the reported speed accuracy
-	_gps_check_fail_status.flags.sacc = (gps.sacc > _params.req_sacc);
+    _gps_check_fail_status.flags.sacc = (gps.sacc > _params.req_sacc); // by default:0.5
 
 	// check if GPS quality is degraded
 	_gps_error_norm = fmaxf((gps.eph / _params.req_hacc), (gps.epv / _params.req_vacc));
@@ -161,7 +161,7 @@ bool Ekf::gps_is_good(const gps_message &gps)
 		}
 
 		// Calculate the horizontal and vertical drift velocity components and limit to 10x the threshold
-		const Vector3f vel_limit(_params.req_hdrift, _params.req_hdrift, _params.req_vdrift);
+        const Vector3f vel_limit(_params.req_hdrift, _params.req_hdrift, _params.req_vdrift); // by default:0.1; 0.2
 		Vector3f pos_derived(delta_pos_n, delta_pos_e, (_gps_alt_prev - 1e-3f * (float)gps.alt));
 		pos_derived = matrix::constrain(pos_derived / dt, -10.0f * vel_limit, 10.0f * vel_limit);
 
