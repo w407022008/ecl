@@ -229,7 +229,7 @@ void Ekf::controlExternalVisionFusion()
 			// correct position and height for offset relative to IMU
 			const Vector3f pos_offset_body = _params.ev_pos_body - _params.imu_pos_body;
 			const Vector3f pos_offset_earth = _R_to_earth * pos_offset_body;
-			_ev_sample_delayed.pos -= pos_offset_earth;
+//			_ev_sample_delayed.pos -= pos_offset_earth;
 
 			// Use an incremental position fusion method for EV position data if GPS is also used
 			if (_params.fusion_mode & MASK_USE_GPS) {
@@ -246,17 +246,20 @@ void Ekf::controlExternalVisionFusion()
 				} else {
 					// calculate the change in position since the last measurement
 					Vector3f ev_delta_pos = _ev_sample_delayed.pos - _pos_meas_prev;
+                    Matrix3f ev_pos_var = matrix::diag(_ev_sample_delayed.posVar);
 
 					// rotate measurement into body frame is required when fusing with GPS
-					ev_delta_pos = _R_ev_to_ekf * ev_delta_pos;
+                    if (_params.fusion_mode & MASK_ROTATE_EV) {
+                        ev_delta_pos = _R_ev_to_ekf * ev_delta_pos;
+                        ev_pos_var = _R_ev_to_ekf * ev_pos_var * _R_ev_to_ekf.transpose();
+                    }
+                    ev_delta_pos -= pos_offset_earth;
 
 					// use the change in position since the last measurement
 					_ev_pos_innov(0) = _state.pos(0) - _hpos_pred_prev(0) - ev_delta_pos(0);
 					_ev_pos_innov(1) = _state.pos(1) - _hpos_pred_prev(1) - ev_delta_pos(1);
 
-					// observation 1-STD error, incremental pos observation is expected to have more uncertainty
-					Matrix3f ev_pos_var = matrix::diag(_ev_sample_delayed.posVar);
-					ev_pos_var = _R_ev_to_ekf * ev_pos_var * _R_ev_to_ekf.transpose();
+                    // observation 1-STD error, incremental pos observation is expected to have more uncertainty
 					ev_pos_obs_var(0) = fmaxf(ev_pos_var(0, 0), sq(0.5f));
 					ev_pos_obs_var(1) = fmaxf(ev_pos_var(1, 1), sq(0.5f));
 				}
@@ -270,9 +273,10 @@ void Ekf::controlExternalVisionFusion()
 				Vector3f ev_pos_meas = _ev_sample_delayed.pos;
 				Matrix3f ev_pos_var = matrix::diag(_ev_sample_delayed.posVar);
 				if (_params.fusion_mode & MASK_ROTATE_EV) {
-					ev_pos_meas = _R_ev_to_ekf * ev_pos_meas;
+                    ev_pos_meas = _R_ev_to_ekf * ev_pos_meas;
 					ev_pos_var = _R_ev_to_ekf * ev_pos_var * _R_ev_to_ekf.transpose();
 				}
+                ev_pos_meas -= pos_offset_earth;
 				_ev_pos_innov(0) = _state.pos(0) - ev_pos_meas(0);
 				_ev_pos_innov(1) = _state.pos(1) - ev_pos_meas(1);
 
