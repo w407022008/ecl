@@ -857,7 +857,7 @@ void Ekf::controlHeightSensorTimeouts()
 
 void Ekf::checkVerticalAccelerationHealth()
 {
-	// Check for IMU accelerometer vibration induced clipping as evidenced by the vertical
+    // Check for IMU accelerometer vibration induced clipping as evidenced by the vertical
 	// innovations being positive and not stale.
 	// Clipping causes the average accel reading to move towards zero which makes the INS
 	// think it is falling and produces positive vertical innovations
@@ -866,8 +866,8 @@ void Ekf::checkVerticalAccelerationHealth()
 	const bool is_fusing_gps_vel = !_gps_hgt_intermittent;
 	const bool is_fusing_baro_alt = _control_status.flags.baro_hgt && !_baro_hgt_faulty;
 	const bool are_vertical_pos_and_vel_independant = is_fusing_gps_vel && is_fusing_baro_alt; // TODO: should we add range hgt here?
-	const float pos_vel_innov_product = _gps_pos_innov(2) * fmaxf(fabsf(_gps_vel_innov(2)),fabsf(_ev_vel_innov(2)));
-	const float pos_vel_innov_var_product = _gps_pos_innov_var(2) * fmaxf(fabsf(_gps_vel_innov_var(2)),fabsf(_ev_vel_innov_var(2)));
+    const float pos_vel_innov_product = fmaxf(fabsf(_gps_pos_innov(2)),fabsf(_ev_pos_innov(2))) * fmaxf(fabsf(_gps_vel_innov(2)),fabsf(_ev_vel_innov(2))); // ??? why gps pos is necessary
+    const float pos_vel_innov_var_product = fmaxf(fabsf(_gps_pos_innov_var(2)),fabsf(_ev_pos_innov_var(2))) * fmaxf(fabsf(_gps_vel_innov_var(2)),fabsf(_ev_vel_innov_var(2)));
 	const bool are_pos_vel_sensor_in_agreement = sq(pos_vel_innov_product) > var_product_lim * (pos_vel_innov_var_product);
 
 	// A positive innovation indicates that the inertial nav thinks it is falling
