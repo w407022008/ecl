@@ -43,6 +43,8 @@
 #pragma once
 
 #include "estimator_interface.h"
+#include <uORB/Publication.hpp>
+#include <uORB/topics/ekf2_custom.h>
 
 class Ekf : public EstimatorInterface
 {
@@ -917,4 +919,8 @@ private:
 	bool resetYawToEKFGSF();
 
 	void resetGpsDriftCheckFilters();
+
+
+    uORB::Publication<ekf2_custom_s>			_ekf2_custom_pub{ORB_ID(ekf2_custom)};
+    ekf2_custom_s ekf2_custom{};
 };

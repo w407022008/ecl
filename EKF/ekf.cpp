@@ -300,6 +300,12 @@ void Ekf::predictState()
 		_ang_rate_delayed_raw = _imu_sample_delayed.delta_ang / _imu_sample_delayed.delta_ang_dt;
 	}
 
+    ekf2_custom.pre_vel[0] = _state.vel(0);
+    ekf2_custom.pre_vel[1] = _state.vel(1);
+    ekf2_custom.pre_vel[2] = _state.vel(2);
+    ekf2_custom.pre_pos[0] = _state.pos(0);
+    ekf2_custom.pre_pos[1] = _state.pos(1);
+    ekf2_custom.pre_pos[2] = _state.pos(2);
 }
 
 /*
@@ -382,7 +388,7 @@ void Ekf::calculateOutputStates()
 		const Vector3f ang_rate = imu.delta_ang * (1.0f / imu.delta_ang_dt);
 
 		// calculate the velocity of the IMU relative to the body origin
-		const Vector3f vel_imu_rel_body = ang_rate % _params.imu_pos_body;
+        const Vector3f vel_imu_rel_body = ang_rate % _params.imu_pos_body; // cross product
 
 		// rotate the relative velocity into earth frame
 		_vel_imu_rel_body_ned = _R_to_earth_now * vel_imu_rel_body;
@@ -455,6 +461,41 @@ void Ekf::calculateOutputStates()
 		const Vector3f pos_correction = pos_err * pos_gain + _pos_err_integ * sq(pos_gain) * 0.1f;
 
 		applyCorrectionToOutputBuffer(vel_correction, pos_correction);
+
+        ekf2_custom.timestamp = _output_new.time_us;
+        ekf2_custom.est_vel[0] = _state.vel(0);
+        ekf2_custom.est_vel[1] = _state.vel(1);
+        ekf2_custom.est_vel[2] = _state.vel(2);
+        ekf2_custom.est_pos[0] = _state.pos(0);
+        ekf2_custom.est_pos[1] = _state.pos(1);
+        ekf2_custom.est_pos[2] = _state.pos(2);
+        ekf2_custom.vel_err[0] = vel_err(0);
+        ekf2_custom.vel_err[1] = vel_err(1);
+        ekf2_custom.vel_err[2] = vel_err(2);
+        ekf2_custom.pos_err[0] = pos_err(0);
+        ekf2_custom.pos_err[1] = pos_err(1);
+        ekf2_custom.pos_err[2] = pos_err(2);
+        ekf2_custom.vel_err_integ[0] = _vel_err_integ(0);
+        ekf2_custom.vel_err_integ[1] = _vel_err_integ(1);
+        ekf2_custom.vel_err_integ[2] = _vel_err_integ(2);
+        ekf2_custom.pos_err_integ[0] = _pos_err_integ(0);
+        ekf2_custom.pos_err_integ[1] = _pos_err_integ(1);
+        ekf2_custom.pos_err_integ[2] = _pos_err_integ(2);
+        ekf2_custom.vel_correction[0] = vel_correction(0);
+        ekf2_custom.vel_correction[1] = vel_correction(1);
+        ekf2_custom.vel_correction[2] = vel_correction(2);
+        ekf2_custom.pos_correction[0] = pos_correction(0);
+        ekf2_custom.pos_correction[1] = pos_correction(1);
+        ekf2_custom.pos_correction[2] = pos_correction(2);
+        ekf2_custom.vel_gain = vel_gain;
+        ekf2_custom.pos_gain = pos_gain;
+        ekf2_custom.buff_oldest[0] = output_delayed.pos(0)+pos_correction(0);
+        ekf2_custom.buff_oldest[1] = output_delayed.pos(1)+pos_correction(1);
+        ekf2_custom.buff_oldest[2] = output_delayed.pos(2)+pos_correction(2);
+        ekf2_custom.buff_newest[0] = _output_new.pos(0)+pos_correction(0);
+        ekf2_custom.buff_newest[1] = _output_new.pos(1)+pos_correction(1);
+        ekf2_custom.buff_newest[2] = _output_new.pos(2)+pos_correction(2);
+        _ekf2_custom_pub.publish(ekf2_custom);
 	}
 }
 
