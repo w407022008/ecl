@@ -324,6 +324,8 @@ struct parameters {
 	// output complementary filter tuning
 	float vel_Tau{0.25f};			///< velocity state correction time constant (1/sec)
 	float pos_Tau{0.25f};			///< position state correction time constant (1/sec)
+    float vel_intg_max{0.1f};		///< velocity error integration saturation
+    float pos_intg_max{0.1f};		///< position error integration saturation
 
 	// accel bias learning control
 	float acc_bias_lim{0.4f};		///< maximum accel bias magnitude (m/sec**2)

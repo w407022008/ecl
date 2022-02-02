@@ -454,10 +454,16 @@ void Ekf::calculateOutputStates()
 
 		// calculate a velocity correction that will be applied to the output state history
 		_vel_err_integ += vel_err;
+		_vel_err_integ(0) = math::constrain(_vel_err_integ(0), -_params.vel_intg_max,_params.vel_intg_max);
+		_vel_err_integ(1) = math::constrain(_vel_err_integ(1), -_params.vel_intg_max,_params.vel_intg_max);
+		_vel_err_integ(2) = math::constrain(_vel_err_integ(2), -_params.vel_intg_max,_params.vel_intg_max);
 		const Vector3f vel_correction = vel_err * vel_gain + _vel_err_integ * sq(vel_gain) * 0.1f;
 
 		// calculate a position correction that will be applied to the output state history
 		_pos_err_integ += pos_err;
+		_pos_err_integ(0) = math::constrain(_pos_err_integ(0), -_params.pos_intg_max,_params.pos_intg_max);
+		_pos_err_integ(1) = math::constrain(_pos_err_integ(1), -_params.pos_intg_max,_params.pos_intg_max);
+		_pos_err_integ(2) = math::constrain(_pos_err_integ(2), -_params.pos_intg_max,_params.pos_intg_max);
 		const Vector3f pos_correction = pos_err * pos_gain + _pos_err_integ * sq(pos_gain) * 0.1f;
 
 		applyCorrectionToOutputBuffer(vel_correction, pos_correction);
