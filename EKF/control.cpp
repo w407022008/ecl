@@ -229,7 +229,7 @@ void Ekf::controlExternalVisionFusion()
 			// correct position and height for offset relative to IMU
 			const Vector3f pos_offset_body = _params.ev_pos_body - _params.imu_pos_body;
 			const Vector3f pos_offset_earth = _R_to_earth * pos_offset_body;
-//			_ev_sample_delayed.pos -= pos_offset_earth;
+            _ev_sample_delayed.pos -= pos_offset_earth;
 
 			// Use an incremental position fusion method for EV position data if GPS is also used
 			if (_params.fusion_mode & MASK_USE_GPS) {
@@ -1000,21 +1000,28 @@ void Ekf::controlHeightFusion()
 	case VDIST_SENSOR_EV:
 
 		// don't start using EV data unless data is arriving frequently
-		if (!_control_status.flags.ev_hgt && isRecent(_time_last_ext_vision, 2 * EV_MAX_INTERVAL)) {
-			fuse_height = true;
-			setControlEVHeight();
-			resetHeight();
+        if (!_control_status.flags.ev_hgt) {
+            if(isRecent(_time_last_ext_vision, 2 * EV_MAX_INTERVAL)){
+                fuse_height = true;
+                setControlEVHeight();
+                resetHeight();
+            } else if (!_control_status_prev.flags.rng_hgt && do_range_aid && _range_sensor.isDataHealthy()){
+                setControlRangeHeight();
+                // we have just switched to using range finder, calculate height sensor offset such that current
+                // measurement matches our current height estimate
+                _hgt_sensor_offset = _terrain_vpos;
+            }
 		}
 
-		if (_control_status.flags.baro_hgt && _baro_data_ready && !_baro_hgt_faulty) {
+        // determine if we should use the vertical position observation
+        if (_control_status.flags.ev_hgt && _ev_data_ready) {
+            fuse_height = true;
+        } else if (_control_status.flags.rng_hgt && _range_sensor.isDataHealthy()) {
+            fuse_height = true;
+        } else if (_control_status.flags.baro_hgt && _baro_data_ready && !_baro_hgt_faulty) {
 			// switch to baro if there was a reset to baro
 			fuse_height = true;
-		}
-
-		// determine if we should use the vertical position observation
-		if (_control_status.flags.ev_hgt) {
-			fuse_height = true;
-		}
+        }
 
 		break;
 	}
