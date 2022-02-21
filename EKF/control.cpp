@@ -1005,7 +1005,7 @@ void Ekf::controlHeightFusion()
                 fuse_height = true;
                 setControlEVHeight();
                 resetHeight();
-            } else if (!_control_status_prev.flags.rng_hgt && do_range_aid && _range_sensor.isDataHealthy()){
+            } else if (!_control_status.flags.rng_hgt && do_range_aid && _range_sensor.isDataHealthy()){
                 setControlRangeHeight();
                 // we have just switched to using range finder, calculate height sensor offset such that current
                 // measurement matches our current height estimate
