@@ -1125,7 +1125,7 @@ void Ekf::checkRangeAidSuitability()
 	if (_control_status.flags.in_air
 	    && _range_sensor.isHealthy()
 	    && isTerrainEstimateValid()
-	    && isHorizontalAidingActive()) {
+		) { // && isHorizontalAidingActive()
 		// check if we can use range finder measurements to estimate height, use hysteresis to avoid rapid switching
 		// Note that the 0.7 coefficients and the innovation check are arbitrary values but work well in practice
 		const bool is_in_range = _is_range_aid_suitable
