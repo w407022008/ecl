@@ -133,8 +133,25 @@ public:
 			int index = (_head - i);
 			index = index < 0 ? _size + index : index;
 
-			if (timestamp >= _buffer[index].time_us && timestamp < _buffer[index].time_us + (uint64_t)1e5) {
-				*sample = _buffer[index];
+            if (timestamp >= _buffer[index].time_us - (uint64_t)5e4 && timestamp < _buffer[index].time_us + (uint64_t)1e5) {
+                float delta_t = fabs(float(_buffer[index].time_us - timestamp));
+                while(index != _tail)
+                {
+                    index--;
+                    index = index < 0 ? _size + index : index;
+                    float delta = fabs(float(_buffer[index].time_us - timestamp));
+                    if(delta>delta_t)
+                    {
+                        index++;
+                        index = index >= _size ? index - _size : index;
+                        break;
+                    }
+                    else
+                    {
+                        delta_t = delta;
+                    }
+                }
+                *sample = _buffer[index];
 
 				// Now we can set the tail to the item which
 				// comes after the one we removed since we don't
