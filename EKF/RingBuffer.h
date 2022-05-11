@@ -133,7 +133,7 @@ public:
 			int index = (_head - i);
 			index = index < 0 ? _size + index : index;
 
-            if (timestamp >= _buffer[index].time_us - (uint64_t)5e4 && timestamp < _buffer[index].time_us + (uint64_t)1e5) {
+            if (timestamp >= _buffer[index].time_us && timestamp < _buffer[index].time_us + (uint64_t)1e5) {
                 float delta_t = fabs(float(_buffer[index].time_us - timestamp));
                 while(index != _tail)
                 {
