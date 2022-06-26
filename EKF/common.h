@@ -140,6 +140,7 @@ struct flowSample {
 	Vector3f gyro_xyz;	///< measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
 	float    dt;		///< amount of integration time (sec)
 	uint8_t  quality;	///< quality indicator between 0 and 255
+    uint8_t sensor_id;  ///< sensor id between 0 and 255
 };
 
 struct extVisionSample {
