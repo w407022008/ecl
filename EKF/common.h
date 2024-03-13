@@ -140,7 +140,7 @@ struct flowSample {
 	Vector3f gyro_xyz;	///< measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
 	float    dt;		///< amount of integration time (sec)
 	uint8_t  quality;	///< quality indicator between 0 and 255
-    uint8_t sensor_id;  ///< sensor id between 0 and 255
+	uint8_t sensor_id;	///< sensor id between 0 and 255
 };
 
 struct extVisionSample {
@@ -222,7 +222,6 @@ struct parameters {
 	int32_t sensor_interval_min_ms{20};		///< minimum time of arrival difference between non IMU sensor updates. Sets the size of the observation buffers. (mSec)
 
 	// measurement time delays
-	float forced_delay_ms{0.0f};		///< forced minimum observation delay relative to the IMU (mSec)
 	float mag_delay_ms{0.0f};		///< magnetometer measurement delay relative to the IMU (mSec)
 	float baro_delay_ms{0.0f};		///< barometer height measurement delay relative to the IMU (mSec)
 	float gps_delay_ms{110.0f};		///< GPS measurement delay relative to the IMU (mSec)
@@ -279,7 +278,7 @@ struct parameters {
 	// airspeed fusion
 	float tas_innov_gate{5.0f};		///< True Airspeed innovation consistency gate size (STD)
 	float eas_noise{1.4f};			///< EAS measurement noise standard deviation used for airspeed fusion (m/s)
-	float arsp_thr{0.0f};			///< Airspeed fusion threshold. A value of zero will deactivate airspeed fusion
+	float arsp_thr{2.0f};			///< Airspeed fusion threshold. A value of zero will deactivate airspeed fusion
 
 	// synthetic sideslip fusion
 	float beta_innov_gate{5.0f};		///< synthetic sideslip innovation consistency gate size in standard deviation (STD)

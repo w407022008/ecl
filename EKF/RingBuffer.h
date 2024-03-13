@@ -143,6 +143,7 @@ public:
 				// 	}
 				// }
 				*sample = _buffer[index];
+
 				// Now we can set the tail to the item which
 				// comes after the one we removed since we don't
 				// want to have any older data in the buffer
